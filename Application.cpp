@@ -1,6 +1,7 @@
 #include "Application.h"
 #include "imgui/imgui.h"
 #include "classes/TicTacToe.h"
+#include "classes/Logger.hpp"
 
 namespace ClassGame {
         //
@@ -16,6 +17,9 @@ namespace ClassGame {
         //
         void GameStartUp() 
         {
+            ImGuiIO& io = ImGui::GetIO();
+            io.Fonts->AddFontFromFileTTF("resources/Noto_Sans/NotoSans-Regular.ttf", 20.0f);
+
             game = new TicTacToe();
             game->setUpBoard();
         }
@@ -52,6 +56,8 @@ namespace ClassGame {
                 ImGui::Begin("GameWindow");
                 game->drawFrame();
                 ImGui::End();
+
+                Logger::GetInstance().UI();
         }
 
         //

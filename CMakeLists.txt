@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5.0)
+cmake_minimum_required(VERSION 3.12.0)
 project(tictactoe VERSION 0.1.0 LANGUAGES C CXX)
 
 # check for macOS
@@ -30,6 +30,14 @@ else()
     # DirectX11 libraries are part of the Windows SDK
 endif()
 
+
+if(LINUX)
+    include_directories(${CMAKE_SOURCE_DIR}/glad/include/)
+    set(GLAD_FILE "${CMAKE_SOURCE_DIR}/glad/src/gl.c")
+endif()
+
+include_directories(${CMAKE_CURRENT_LIST_DIR})
+
 include(CTest)
 enable_testing()
 
@@ -59,9 +67,12 @@ add_executable(demo Application.cpp
                           classes/Sprite.cpp
                           classes/Square.cpp
                           classes/TicTacToe.cpp
+                          classes/Logger.cpp
                           ${BCKD_FILE}
                           ${MAIN_FILE}
                           ${IMPL_FILE}
+                          ${GLAD_FILE}
+
                 )
 
 if(MACOS OR LINUX)
@@ -77,6 +88,12 @@ elseif(WINDOWS)
         winmm.lib
     )
 endif()
+
+
+if(LINUX)
+    target_compile_definitions(demo PUBLIC DEMO_USE_GLAD_FOR_GL)
+endif()
+
 
 # Copy resources to build directory
 add_custom_command(

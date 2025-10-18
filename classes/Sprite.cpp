@@ -1,3 +1,7 @@
+#ifdef DEMO_USE_GLAD_FOR_GL
+#include <glad/gl.h>
+#endif
+
 #include "Sprite.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -40,28 +44,7 @@ bool Sprite::highlighted()
 	return _highlighted;
 }
 
-#ifdef __APPLE__
-#include "../imgui/imgui_impl_opengl3_loader.h"
-
-ImTextureID Sprite::_loadTextureFromMemory(const unsigned char *image_data, int image_width, int image_height)
-{
-    // Create a OpenGL texture identifier
-    GLuint image_texture;
-    glGenTextures(1, &image_texture);
-    glBindTexture(GL_TEXTURE_2D, image_texture);
-
-    // Setup filtering parameters for display
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    // Upload pixels into texture
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image_width, image_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image_data);
-
-    return static_cast<ImTextureID>(image_texture);
-}
-
-#else
-
+#ifdef WIN32
 // DirectX
 #include <stdio.h>
 #include <d3d11.h>
@@ -117,5 +100,24 @@ ImTextureID Sprite::_loadTextureFromMemory(const unsigned char *image_data, int 
     }
     return reinterpret_cast<ImTextureID>(shaderResourceView);
 }
+#else
+
+ImTextureID Sprite::_loadTextureFromMemory(const unsigned char *image_data, int image_width, int image_height)
+{
+    // Create a OpenGL texture identifier
+    GLuint image_texture;
+    glGenTextures(1, &image_texture);
+    glBindTexture(GL_TEXTURE_2D, image_texture);
+
+    // Setup filtering parameters for display
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    // Upload pixels into texture
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image_width, image_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image_data);
+
+    return static_cast<ImTextureID>(image_texture);
+}
+
 #endif
 

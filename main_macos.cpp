@@ -7,14 +7,25 @@
 // - Documentation        https://dearimgui.com/docs (same as your local docs/ folder).
 // - Introduction, links and more at the top of imgui.cpp
 
+
+// MODIFIED SLIGHTLY TO USE AN OPENGL FUNCTION LOADER (https://gen.glad.sh/) ON LINUX WHERE OPENGL WASN'T BEING LOADED PROPERLY (my system had this issue).
+
+#ifdef DEMO_USE_GLAD_FOR_GL
+#include <glad/gl.h>
+#endif
+
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
 #include <stdio.h>
+
+#ifndef DEMO_USE_GLAD_FOR_GL
 #define GL_SILENCE_DEPRECATION
 #if defined(IMGUI_IMPL_OPENGL_ES2)
 #include <GLES2/gl2.h>
 #endif
+#endif
+
 #include <GLFW/glfw3.h> // Will drag system OpenGL headers
 #include "Application.h"
 
@@ -71,6 +82,10 @@ int main(int, char**)
         return 1;
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1); // Enable vsync
+
+#ifdef DEMO_USE_GLAD_FOR_GL
+    gladLoadGL(glfwGetProcAddress);
+#endif
 
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
