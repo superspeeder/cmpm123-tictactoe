@@ -30,12 +30,12 @@ struct LogEntry {
 
 #ifdef LOGGER_USE_STD_FORMAT
 #define LOGFUNC_HELPER(Ext, Level) inline void Log##Ext(const std::string_view message) { Log(Level, message); }; \
-                                   template<class... Args> requires(std::tuple_size_v<std::tuple<Args...>> > 0) void Log##Ext(std::format_string<Args...> fmt, Args&&... args) { Log(Level, fmt, std::forward(args)...); }
+                                   template<class... Args> requires(std::tuple_size_v<std::tuple<Args...>> > 0) void Log##Ext(std::format_string<Args...> fmt, Args&&... args) { Log(Level, fmt, std::forward<Args>(args)...); }
 
 #define LOGFUNC_HELPER_2(Ext, Level, Name) inline void Log##Name##Ext(const std::string_view message) { Log(#Name, Level, message); }; \
-                                   template<class... Args> requires(std::tuple_size_v<std::tuple<Args...>> > 0) void Log##Name##Ext(std::format_string<Args...> fmt, Args&&... args) { Log(#Name, Level, fmt, std::forward(args)...); }
+                                   template<class... Args> requires(std::tuple_size_v<std::tuple<Args...>> > 0) void Log##Name##Ext(std::format_string<Args...> fmt, Args&&... args) { Log(#Name, Level, fmt, std::forward<Args>(args)...); }
 #define LOGFUNC_HELPER_3(Ext, Level, Name, Name2) inline void Log##Name##Ext(const std::string_view message) { Log(#Name2, Level, message); }; \
-                                   template<class... Args> requires(std::tuple_size_v<std::tuple<Args...>> > 0) void Log##Name##Ext(std::format_string<Args...> fmt, Args&&... args) { Log(#Name2, Level, fmt, std::forward(args)...); }
+                                   template<class... Args> requires(std::tuple_size_v<std::tuple<Args...>> > 0) void Log##Name##Ext(std::format_string<Args...> fmt, Args&&... args) { Log(#Name2, Level, fmt, std::forward<Args>(args)...); }
 #else
 #define LOGFUNC_HELPER(Ext, Level) inline void Log##Ext(const std::string_view message) { Log(Level, message); };
 #define LOGFUNC_HELPER_2(Ext, Level, Name) inline void Log##Name##Ext(const std::string_view message) { Log(#Name, Level, message); };
@@ -70,7 +70,7 @@ public:
      */
     template<class... Args> requires(std::tuple_size_v<std::tuple<Args...>> > 0)
     void Log(LogLevel level, std::format_string<Args...> fmt, Args&&... args) {
-        const auto message = std::format(fmt, std::forward(args)...);
+        const auto message = std::format(fmt, std::forward<Args>(args)...);
         Log(level, message);
     };
 
@@ -79,7 +79,7 @@ public:
      */
     template<class... Args> requires(std::tuple_size_v<std::tuple<Args...>> > 0)
     void Log(const std::string_view logger, LogLevel level, std::format_string<Args...> fmt, Args&&... args) {
-        const auto message = std::format(fmt, std::forward(args)...);
+        const auto message = std::format(fmt, std::forward<Args>(args)...);
         Log(logger, level, message);
     };
     #endif

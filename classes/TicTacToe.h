@@ -33,7 +33,10 @@ public:
     BitHolder &getHolderAt(const int x, const int y) override { return _grid[y][x]; }
 private:
     Bit *       PieceForPlayer(const int playerNumber);
-    Player*     ownerAt(int index ) const;
+    Player*     ownerAt(int index) const;
+
+    Player* boardCheckHelper(bool* isDraw);
+
 
     Square      _grid[3][3];
 };
