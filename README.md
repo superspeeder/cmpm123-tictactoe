@@ -15,3 +15,11 @@ Also, my monitor has a high enough resolution that the builtin font to ImGui is 
 ## Platform Used
 
 This code has been tested on Windows.
+
+
+## Negamax Addition
+Negamax was added very similarly to how was shown in class (with a couple small changes made).
+I implemented a relatively standard negamax function, and call it from updateAI() for each possible move to find the best one.
+The main way my code differs from what was shown in class is that I batch the check for winner and check for a draw into the same function for better efficiency.
+The other way my code differs is that I made my negamax and check_winner functions `static` in the source file instead of part of the `TicTacToe` class, since they don't need to access any data from TicTacToe.
+

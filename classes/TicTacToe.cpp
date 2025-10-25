@@ -38,8 +38,8 @@
  * - I added a bit of padding to the top of the grid (24 pixels) so that the grid wasn't overlapping with the imgui window title.
  */
 
-const int AI_PLAYER    = 1; // index of the AI player (O)
-const int HUMAN_PLAYER = 0; // index of the human player (X)
+const int AI_PLAYER    = 1;  // index of the AI player (O)
+const int HUMAN_PLAYER = -1; // index of the human player (X)
 
 TicTacToe::TicTacToe() {}
 
@@ -68,6 +68,7 @@ void TicTacToe::setUpBoard() {
     // finally we should call startGame to get everything going
 
     setNumberOfPlayers(2);
+    setAIPlayer(1);
 
     _gameOptions.rowX = _gameOptions.rowY = 3;
     for (int i = 0; i < 3; i++) {
@@ -333,10 +334,94 @@ void TicTacToe::setStateString(const std::string& s) {
     Logger::GetInstance().LogGameEventInfo("Game state set via string \"{}\"", s);
 }
 
+static int negamax(std::string& state, const int depth, const int player_color);
 
 //
 // this is the function that will be called by the AI
 //
 void TicTacToe::updateAI() {
-    // we will implement the AI in the next assignment!
+    auto state       = stateString();
+    int  best_move   = -1000;
+    int  best_square = -1;
+
+    for (int i = 0; i < 9; i++) {
+        if (state[i] != '0') continue;
+
+        state[i]   = '2';
+        const int result = -negamax(state, 0, HUMAN_PLAYER);
+        Logger::GetInstance().LogGameEventInfo("Space {} has value {}", i, result);
+        if (result > best_move) {
+            best_move   = result;
+            best_square = i;
+        }
+        state[i] = '0';
+    }
+
+    if (best_square != -1) {
+        int x = best_square % 3;
+        int y = best_square / 3;
+        actionForEmptyHolder(&getHolderAt(x, y));
+        endTurn();
+    }
+}
+
+static char check_winner(const std::string& state) {
+    static constexpr int WINNING_TRIPLES[8][3] = {
+        {0, 1, 2},
+        {3, 4, 5},
+        {6, 7, 8},
+        {0, 3, 6},
+        {1, 4, 7},
+        {2, 5, 8},
+        {0, 4, 8},
+        {2, 4, 6},
+    };
+
+    // Check for the winner over the triples. We also track a draw (indicated by a return value of 'd').
+    bool full = true;
+    for (unsigned i = 0; i < 8; i++) {
+        const int* triple = WINNING_TRIPLES[i];
+        const char s0     = state.at(triple[0]);
+        if (s0 == '0') {
+            full = false;
+            continue;
+        }
+        const char s1 = state.at(triple[1]);
+        const char s2 = state.at(triple[2]);
+        if (s0 == s1 && s1 == s2) {
+            return s0;
+        }
+    }
+
+    for (unsigned i = 0; full && i < 9; i++) {
+        if (state[i] == '0') full = false;
+    }
+
+    if (full) {
+        return 'd';
+    }
+
+    // no winner
+    return '0';
+}
+
+
+static int negamax(std::string& state, const int depth, const int player_color) {
+    if (const char active_winner = check_winner(state); active_winner != '0') {
+        // active_winner == '0' when the state is not a terminal state.
+        if (depth <= 2) {
+            Logger::GetInstance().LogGameEventInfo("Win within 2: {}", active_winner);
+        }
+        return active_winner == 'd' ? 0 : -10;
+    }
+
+    int value = -1000;
+    for (int i = 0; i < 9; i++) {
+        if (state[i] != '0') continue;
+        state[i] = player_color == HUMAN_PLAYER ? '1' : '2';
+        value    = std::max(value, -negamax(state, depth + 1, -player_color));
+        state[i] = '0';
+    }
+
+    return value;
 }
